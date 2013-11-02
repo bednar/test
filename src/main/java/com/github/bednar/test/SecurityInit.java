@@ -29,6 +29,17 @@ public final class SecurityInit
     }
 
     /**
+     * @param jetty with {@link ServletContext}
+     *
+     * @see #bindSecurityManager(javax.servlet.ServletContext)
+     */
+    @Nonnull
+    public SecurityInit bindSecurityManager(@Nonnull final EmbeddedJetty jetty)
+    {
+        return bindSecurityManager(jetty.getServletContext());
+    }
+
+    /**
      * Bind {@link org.apache.shiro.web.mgt.WebSecurityManager} to actual {@link Thread}.
      *
      * @param context Servlet Context
