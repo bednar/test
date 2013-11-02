@@ -16,7 +16,7 @@ import org.eclipse.jetty.webapp.WebAppContext;
 /**
  * @author Jakub Bednář (01/09/2013 11:23 AM)
  */
-public class EmbeddedJetty
+public final class EmbeddedJetty
 {
     private static final String WEB_FRAGMENT_RESOURCE = "META-INF/web-fragment.xml";
 
