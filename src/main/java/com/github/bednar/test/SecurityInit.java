@@ -5,8 +5,11 @@ import javax.servlet.ServletContext;
 
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.mgt.SecurityManager;
+import org.apache.shiro.subject.Subject;
 import org.apache.shiro.util.LifecycleUtils;
+import org.apache.shiro.util.ThreadContext;
 import org.apache.shiro.web.util.WebUtils;
+import org.mockito.Mockito;
 
 /**
  * @author Jakub Bednář (02/11/2013 17:07)
@@ -70,6 +73,42 @@ public final class SecurityInit
         LifecycleUtils.destroy(securityManager);
 
         SecurityUtils.setSecurityManager(null);
+
+        return this;
+    }
+
+    /**
+     * Create authenticated {@link Subject}
+     *
+     * @param principal username
+     *
+     * @return this
+     */
+    @Nonnull
+    public SecurityInit buildSubject(@Nonnull final String principal)
+    {
+        Subject subject = Mockito.mock(Subject.class);
+
+        Mockito.when(subject.isAuthenticated()).thenReturn(true);
+        Mockito.when(subject.getPrincipal()).thenReturn(principal);
+
+        ThreadContext.bind(subject);
+
+        return this;
+    }
+
+    /**
+     * Logout actual {@link Subject}
+     *
+     * @return this
+     */
+    @Nonnull
+    public SecurityInit destroySubject()
+    {
+        Subject subject = SecurityUtils.getSubject();
+        subject.logout();
+
+        ThreadContext.bind(subject);
 
         return this;
     }
