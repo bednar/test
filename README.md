@@ -1,5 +1,7 @@
-Test Library [![Build Status](https://api.travis-ci.org/bednar/test.png?branch=master)](https://travis-ci.org/bednar/test)
+Test Library
 ====
+[![Build Status](https://api.travis-ci.org/bednar/test.png?branch=master)](https://travis-ci.org/bednar/test) [![Coverage Status](https://coveralls.io/repos/bednar/test/badge.png)](https://coveralls.io/r/bednar/test)
+
 
 ## Maven Repository
 

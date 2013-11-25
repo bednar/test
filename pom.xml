@@ -66,6 +66,30 @@
 
     </dependencies>
 
+    <build>
+
+        <plugins>
+
+            <!-- Test -->
+
+            <plugin>
+                <groupId>org.eluder.coveralls</groupId>
+                <artifactId>coveralls-maven-plugin</artifactId>
+            </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>cobertura-maven-plugin</artifactId>
+                <configuration>
+                    <format>xml</format>
+                    <check/>
+                </configuration>
+            </plugin>
+
+        </plugins>
+
+    </build>
+
     <repositories>
 
         <repository>
