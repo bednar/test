@@ -108,6 +108,9 @@ public final class SecurityInit
         Subject subject = SecurityUtils.getSubject();
         subject.logout();
 
+        Mockito.when(subject.isAuthenticated()).thenReturn(false);
+        Mockito.when(subject.getPrincipal()).thenReturn(null);
+
         ThreadContext.bind(subject);
 
         return this;
