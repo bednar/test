@@ -3,14 +3,14 @@ package com.github.bednar.test;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.servlet.ServletContext;
-import java.io.IOException;
 import java.net.URL;
-import java.util.Collections;
 import java.util.Enumeration;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.util.resource.Resource;
+import org.eclipse.jetty.webapp.FragmentDescriptor;
 import org.eclipse.jetty.webapp.MetaData;
 import org.eclipse.jetty.webapp.WebAppContext;
 
@@ -51,15 +51,23 @@ public final class EmbeddedJetty
         //Web Fragments
         if (webFragments)
         {
-            for (URL fragment : getWebFragments())
-            {
-                Resource fragmentXML = Resource.newResource(fragment);
-                Resource fragmentDir = Resource.newResource(fragment.getFile().replace(WEB_FRAGMENT_RESOURCE, ""));
+            Map<String, Resource> fragments = findFragments();
 
-                if (!fragmentXML.equals(webXML))
+            //apply order?
+            if (!metaData.getWebXml().getOrdering().isEmpty())
+            {
+                for (String name : metaData.getWebXml().getOrdering())
                 {
-                    metaData.getOrderedWebInfJars().add(fragmentDir);
-                    metaData.addFragment(fragmentDir, fragmentXML);
+                    Resource fragmentXML = fragments.get(name);
+
+                    addFragment(fragmentXML, webXML, metaData);
+                }
+            }
+            else
+            {
+                for (Resource fragmentXML : fragments.values())
+                {
+                    addFragment(fragmentXML, webXML, metaData);
                 }
             }
         }
@@ -69,6 +77,19 @@ public final class EmbeddedJetty
         server.setStopAtShutdown(true);
 
         return this;
+    }
+
+    private void addFragment(@Nonnull final Resource fragmentXML,
+                             @Nonnull final Resource webXML,
+                             @Nonnull final MetaData metaData) throws Exception
+    {
+        Resource fragmentDir = Resource.newResource(fragmentXML.getURL().getFile().replace(WEB_FRAGMENT_RESOURCE, ""));
+
+        if (!fragmentXML.equals(webXML))
+        {
+            metaData.getOrderedWebInfJars().add(fragmentDir);
+            metaData.addFragment(fragmentDir, fragmentXML);
+        }
     }
 
     @Nonnull
@@ -157,7 +178,7 @@ public final class EmbeddedJetty
     }
 
     /**
-     * @return  Jetty Server
+     * @return Jetty Server
      */
     @Nullable
     public Server getServer()
@@ -166,10 +187,21 @@ public final class EmbeddedJetty
     }
 
     @Nonnull
-    private List<URL> getWebFragments() throws IOException
+    private Map<String, Resource> findFragments() throws Exception
     {
-        Enumeration<URL> resources = this.getClass().getClassLoader().getResources(WEB_FRAGMENT_RESOURCE);
+        HashMap<String, Resource> results = new HashMap<>();
 
-        return Collections.list(resources);
+        Enumeration<URL> resources = this.getClass().getClassLoader().getResources(WEB_FRAGMENT_RESOURCE);
+        while (resources.hasMoreElements())
+        {
+            Resource fragment = Resource.newResource(resources.nextElement());
+
+            FragmentDescriptor fragmentDescriptor = new FragmentDescriptor(fragment);
+            fragmentDescriptor.parse();
+
+            results.put(fragmentDescriptor.getName(), fragment);
+        }
+
+        return results;
     }
 }
