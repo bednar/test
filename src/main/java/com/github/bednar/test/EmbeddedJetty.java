@@ -1,6 +1,7 @@
 package com.github.bednar.test;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.servlet.ServletContext;
 import java.io.IOException;
 import java.net.URL;
@@ -29,16 +30,18 @@ public final class EmbeddedJetty
     private String resourceBase = "src/main/webapp";
     private String descriptor = "META-INF/web-fragment.xml";
 
+    private Server server;
+
     @Nonnull
     public EmbeddedJetty start() throws Exception
     {
-        Server jetty = new Server(port);
+        server = new Server(port);
 
         context = new WebAppContext();
 
         context.setContextPath(contextPath);
         context.setResourceBase(resourceBase);
-        context.setServer(jetty);
+        context.setServer(server);
 
         MetaData metaData = context.getMetaData();
 
@@ -61,9 +64,9 @@ public final class EmbeddedJetty
             }
         }
 
-        jetty.setHandler(context);
-        jetty.start();
-        jetty.setStopAtShutdown(true);
+        server.setHandler(context);
+        server.start();
+        server.setStopAtShutdown(true);
 
         return this;
     }
@@ -151,6 +154,15 @@ public final class EmbeddedJetty
     public String getURL()
     {
         return context.getServer().getURI().toASCIIString();
+    }
+
+    /**
+     * @return  Jetty Server
+     */
+    @Nullable
+    public Server getServer()
+    {
+        return server;
     }
 
     @Nonnull

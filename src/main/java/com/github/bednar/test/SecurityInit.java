@@ -56,6 +56,7 @@ public final class SecurityInit
                 .getRequiredWebEnvironment(context).getWebSecurityManager();
 
         SecurityUtils.setSecurityManager(securityManager);
+        ThreadContext.bind(securityManager);
 
         return this;
     }
@@ -72,6 +73,7 @@ public final class SecurityInit
 
         LifecycleUtils.destroy(securityManager);
 
+        ThreadContext.unbindSecurityManager();
         SecurityUtils.setSecurityManager(null);
 
         return this;
@@ -87,7 +89,7 @@ public final class SecurityInit
     @Nonnull
     public SecurityInit buildSubject(@Nonnull final String principal)
     {
-        Subject subject = Mockito.mock(Subject.class);
+        Subject subject = buildSubject();
 
         Mockito.when(subject.isAuthenticated()).thenReturn(true);
         Mockito.when(subject.getPrincipal()).thenReturn(principal);
@@ -105,7 +107,7 @@ public final class SecurityInit
     @Nonnull
     public SecurityInit destroySubject()
     {
-        Subject subject = SecurityUtils.getSubject();
+        Subject subject = buildSubject();
         subject.logout();
 
         Mockito.when(subject.isAuthenticated()).thenReturn(false);
@@ -114,5 +116,19 @@ public final class SecurityInit
         ThreadContext.bind(subject);
 
         return this;
+    }
+
+    @Nonnull
+    private Subject buildSubject()
+    {
+        Subject subject = ThreadContext.getSubject();
+        if (subject == null)
+        {
+            subject = Mockito.mock(Subject.class);
+        }
+
+        ThreadContext.bind(subject);
+
+        return subject;
     }
 }
