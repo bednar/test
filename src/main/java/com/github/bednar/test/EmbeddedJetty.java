@@ -8,6 +8,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.webapp.FragmentDescriptor;
@@ -172,9 +173,9 @@ public final class EmbeddedJetty
      * @return Base URL "deployed" web application
      */
     @Nonnull
-    public String getURL()
+    public String getURL(final @Nonnull String... paths)
     {
-        return context.getServer().getURI().toASCIIString();
+        return context.getServer().getURI().toASCIIString() + StringUtils.join(paths, "/");
     }
 
     /**
