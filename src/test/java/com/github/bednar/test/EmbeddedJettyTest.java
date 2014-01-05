@@ -60,6 +60,21 @@ public class EmbeddedJettyTest
     }
 
     @Test
+    public void urlValueWithPaths() throws Exception
+    {
+        EmbeddedJetty jetty = new EmbeddedJetty()
+                .descriptor("web-fragment.xml")
+                .port(2348)
+                .start();
+
+        String url = jetty.getURL("api", "beer", "3");
+
+        Assert.assertTrue(url.endsWith("/api/beer/3"));
+
+        jetty.stop();
+    }
+
+    @Test
     public void lookupToFragments() throws Exception
     {
         new EmbeddedJetty()
