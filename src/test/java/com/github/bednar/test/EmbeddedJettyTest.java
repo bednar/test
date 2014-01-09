@@ -84,4 +84,17 @@ public class EmbeddedJettyTest
                 .start()
                 .stop();
     }
+
+    @Test
+    public void initParameter() throws Exception
+    {
+        EmbeddedJetty jetty = new EmbeddedJetty()
+                .descriptor("web-fragment.xml")
+                .webFragments(false)
+                .port(2111)
+                .initParameter("some-param", "some-value")
+                .start();
+
+        Assert.assertEquals("some-value", jetty.getServletContext().getInitParameter("some-param"));
+    }
 }

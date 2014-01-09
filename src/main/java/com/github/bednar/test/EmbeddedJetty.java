@@ -31,6 +31,8 @@ public final class EmbeddedJetty
     private String resourceBase = "src/main/webapp";
     private String descriptor = "META-INF/web-fragment.xml";
 
+    private Map<String, String> initParams = new HashMap<>();
+
     private Server server;
 
     @Nonnull
@@ -43,6 +45,11 @@ public final class EmbeddedJetty
         context.setContextPath(contextPath);
         context.setResourceBase(resourceBase);
         context.setServer(server);
+
+        for (String key : initParams.keySet())
+        {
+            context.setInitParameter(key, initParams.get(key));
+        }
 
         MetaData metaData = context.getMetaData();
 
@@ -80,19 +87,6 @@ public final class EmbeddedJetty
         return this;
     }
 
-    private void addFragment(@Nonnull final Resource fragmentXML,
-                             @Nonnull final Resource webXML,
-                             @Nonnull final MetaData metaData) throws Exception
-    {
-        Resource fragmentDir = Resource.newResource(fragmentXML.getURL().getFile().replace(WEB_FRAGMENT_RESOURCE, ""));
-
-        if (!fragmentXML.equals(webXML))
-        {
-            metaData.getOrderedWebInfJars().add(fragmentDir);
-            metaData.addFragment(fragmentDir, fragmentXML);
-        }
-    }
-
     @Nonnull
     public EmbeddedJetty stop() throws Exception
     {
@@ -106,7 +100,7 @@ public final class EmbeddedJetty
      * @see org.eclipse.jetty.server.Server#Server(int)
      */
     @Nonnull
-    public EmbeddedJetty port(final @Nonnull Integer port)
+    public EmbeddedJetty port(@Nonnull final Integer port)
     {
         this.port = port;
 
@@ -120,7 +114,7 @@ public final class EmbeddedJetty
      * @return this
      */
     @Nonnull
-    public EmbeddedJetty webFragments(final @Nonnull Boolean webFragments)
+    public EmbeddedJetty webFragments(@Nonnull final Boolean webFragments)
     {
         this.webFragments = webFragments;
 
@@ -131,7 +125,7 @@ public final class EmbeddedJetty
      * @see org.eclipse.jetty.webapp.WebAppContext#setContextPath(String)
      */
     @Nonnull
-    public EmbeddedJetty contextPath(final @Nonnull String contextPath)
+    public EmbeddedJetty contextPath(@Nonnull final String contextPath)
     {
         this.contextPath = contextPath;
 
@@ -142,7 +136,7 @@ public final class EmbeddedJetty
      * @see org.eclipse.jetty.webapp.WebAppContext#setResourceBase(String)
      */
     @Nonnull
-    public EmbeddedJetty resourceBase(final @Nonnull String resourceBase)
+    public EmbeddedJetty resourceBase(@Nonnull final String resourceBase)
     {
         this.resourceBase = resourceBase;
 
@@ -153,9 +147,20 @@ public final class EmbeddedJetty
      * @see org.eclipse.jetty.webapp.WebAppContext#setDescriptor(String)
      */
     @Nonnull
-    public EmbeddedJetty descriptor(final @Nonnull String descriptor)
+    public EmbeddedJetty descriptor(@Nonnull final String descriptor)
     {
         this.descriptor = descriptor;
+
+        return this;
+    }
+
+    /**
+     * @see javax.servlet.ServletContext#setInitParameter(java.lang.String, java.lang.String)
+     */
+    @Nonnull
+    public EmbeddedJetty initParameter(@Nonnull final String key, @Nullable final String value)
+    {
+        this.initParams.put(key, value);
 
         return this;
     }
@@ -173,7 +178,7 @@ public final class EmbeddedJetty
      * @return Base URL "deployed" web application
      */
     @Nonnull
-    public String getURL(final @Nonnull String... paths)
+    public String getURL(@Nonnull final String... paths)
     {
         return context.getServer().getURI().toASCIIString() + StringUtils.join(paths, "/");
     }
@@ -204,5 +209,18 @@ public final class EmbeddedJetty
         }
 
         return results;
+    }
+
+    private void addFragment(@Nonnull final Resource fragmentXML,
+                             @Nonnull final Resource webXML,
+                             @Nonnull final MetaData metaData) throws Exception
+    {
+        Resource fragmentDir = Resource.newResource(fragmentXML.getURL().getFile().replace(WEB_FRAGMENT_RESOURCE, ""));
+
+        if (!fragmentXML.equals(webXML))
+        {
+            metaData.getOrderedWebInfJars().add(fragmentDir);
+            metaData.addFragment(fragmentDir, fragmentXML);
+        }
     }
 }
