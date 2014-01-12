@@ -30,6 +30,7 @@ public final class EmbeddedJetty
     private String contextPath = "/";
     private String resourceBase = "src/main/webapp";
     private String descriptor = "META-INF/web-fragment.xml";
+    private String welcomeFile = "index.html";
 
     private Map<String, String> initParams = new HashMap<>();
 
@@ -45,6 +46,7 @@ public final class EmbeddedJetty
         context.setContextPath(contextPath);
         context.setResourceBase(resourceBase);
         context.setServer(server);
+        context.setWelcomeFiles(new String[]{welcomeFile});
 
         for (String key : initParams.keySet())
         {
@@ -166,12 +168,32 @@ public final class EmbeddedJetty
     }
 
     /**
+     * @see org.eclipse.jetty.server.handler.ContextHandler#setWelcomeFiles
+     */
+    @Nonnull
+    public EmbeddedJetty welcomeFile(@Nonnull final String welcomeFile)
+    {
+        this.welcomeFile = welcomeFile;
+
+        return this;
+    }
+
+    /**
      * @return servlet context of Jetty Web Server
      */
     @Nonnull
     public ServletContext getServletContext()
     {
         return context.getServletContext();
+    }
+
+    /**
+     * Nonnull after start
+     */
+    @Nonnull
+    public WebAppContext getWebAppContext()
+    {
+        return context;
     }
 
     /**

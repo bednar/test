@@ -96,5 +96,34 @@ public class EmbeddedJettyTest
                 .start();
 
         Assert.assertEquals("some-value", jetty.getServletContext().getInitParameter("some-param"));
+
+        jetty.stop();
+    }
+
+    @Test
+    public void defaultWelcomeFile() throws Exception
+    {
+        EmbeddedJetty jetty = new EmbeddedJetty()
+                .descriptor("web-fragment.xml")
+                .port(2112)
+                .start();
+
+        Assert.assertEquals("index.html", jetty.getWebAppContext().getWelcomeFiles()[0]);
+
+        jetty.stop();
+    }
+
+    @Test
+    public void customWelcomeFile() throws Exception
+    {
+        EmbeddedJetty jetty = new EmbeddedJetty()
+                .descriptor("web-fragment.xml")
+                .welcomeFile("resources/jade/index.jade?asHTML=true")
+                .port(2113)
+                .start();
+
+        Assert.assertEquals("resources/jade/index.jade?asHTML=true", jetty.getWebAppContext().getWelcomeFiles()[0]);
+
+        jetty.stop();
     }
 }
